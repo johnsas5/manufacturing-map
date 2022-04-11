@@ -1,5 +1,5 @@
 {
-  "name": "manufacturing-map",
+  "name": "chatcomp",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -9,15 +9,18 @@
   },
   "dependencies": {
     "core-js": "^3.8.3",
+    "firebase": "^9.6.10",
     "vue": "^2.6.14",
     "vue-class-component": "^7.2.3",
-    "vue-property-decorator": "^9.1.2"
+    "vue-property-decorator": "^9.1.2",
+    "vue-router": "^3.5.1"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^5.4.0",
     "@typescript-eslint/parser": "^5.4.0",
     "@vue/cli-plugin-babel": "~5.0.0",
     "@vue/cli-plugin-eslint": "~5.0.0",
+    "@vue/cli-plugin-router": "~5.0.0",
     "@vue/cli-plugin-typescript": "~5.0.0",
     "@vue/cli-service": "~5.0.0",
     "@vue/eslint-config-typescript": "^9.1.0",
@@ -45,5 +48,8 @@
     "> 1%",
     "last 2 versions",
     "not dead"
-  ]
+  ],
+  "main": "index.js",
+  "author": "Jacob Lockwood <lockwoja@mail.gvsu.edu>",
+  "license": "MIT"
 }
