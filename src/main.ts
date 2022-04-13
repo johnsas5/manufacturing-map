@@ -1,9 +1,10 @@
 import Vue from 'vue';
 import App from './App.vue';
 import { DowntimeEntry, LinesArr, LinesDown } from "./Types";
-import { deleteCollection, deleteCollectionWithQuery } from './deleteCollection';
+import { deleteCollection, deleteCollectionWithQuery } from './deleteCollectionDb';
 import { FirebaseApp, initializeApp } from "firebase/app";
 import { firebaseConfig } from "./dbconfig";
+import { db } from './dbconfig';
 import { 
   getFirestore,
   Firestore,
@@ -19,7 +20,7 @@ import {
   DocumentChange,
   addDoc,
 } from "firebase/firestore";
-import { onlineUsersColl, downtimeEntriesColl } from "./dbCollections";
+import { onlineUsersColl, onlineUsersCollName, downtimeEntriesColl, downtimeEntriesCollName } from "./dbCollections";
 
 Vue.config.productionTip = false;
 // Vue.use(VueRouter);
@@ -29,29 +30,26 @@ new Vue({
 }).$mount("#app");
 
 // set up variables
-let currentlyOnline: number = 0;
-let currentlyDown = LinesDown;
-const app: FirebaseApp = initializeApp(firebaseConfig, "manufacturing-map");
-const db: Firestore = getFirestore(app);
+let currentlyOnline = 0;
+const currentlyDown = LinesDown;
 
 // delete all online users (should not be any if server is starting up)
-await deleteCollection(db, onlineUsersColl)
+deleteCollection(db, onlineUsersCollName)
 
 // delete any open downtime entries (endtime is null)
-const dteColl: CollectionReference = collection(db, downtimeEntriesColl);
-const q = query(dteColl, where("endTime", "==", "null"));
-deleteCollectionWithQuery(dteColl, q);
+const q = query(downtimeEntriesColl, where("endTime", "==", "null"));
+deleteCollectionWithQuery(downtimeEntriesColl, q);
 
 function allDown(): boolean {
-  for(let l of currentlyDown){
-    if (!l) { return false };
+  for(const l of currentlyDown){
+    if (!l) { return false }
   }
   return true;
 }
 
 // get random line that isn't already down
 function getRandomLine(): number {
-  let lineIndex: number = -1;
+  let lineIndex = -1;
   if (!allDown) {
     let lineIsAlreadyDown = false;
     while (!lineIsAlreadyDown) {
@@ -65,23 +63,22 @@ function getRandomLine(): number {
 // Add downtime start entries (addition of base entry lets client know line is down) randomly if users are logged on
 function addRandomDowntime() {
   if (currentlyOnline > 0) {
-    
-    let line = getRandomLine();
+    const line = getRandomLine();
     if (line > -1) {
-      let dte: DowntimeEntry = {
+      const dte: DowntimeEntry = {
         startTime: Date.now(),
         endTime: null,
         line: LinesArr[line],
         notes: null,
         editedBy: null,
       };
-      addDoc(dteColl, dte);
+      addDoc(downtimeEntriesColl, dte);
     }
   }
 }
 
 // listen for downtime entries to have an endtime to clear the line down status
-onSnapshot(dteColl, (qs: QuerySnapshot) => {
+onSnapshot(downtimeEntriesColl, (qs: QuerySnapshot) => {
   qs.docChanges().forEach((chg: DocumentChange) => {
     const d = chg.doc.data();
     for(let i = 0; i < LinesArr.length; ++i) {
@@ -91,12 +88,12 @@ onSnapshot(dteColl, (qs: QuerySnapshot) => {
 })
 
 // listen for online users and change local variable
-const onlineColl = collection(db, onlineUsersColl);
-onSnapshot(onlineColl, (qs: QuerySnapshot) => {
+onSnapshot(onlineUsersColl, (qs: QuerySnapshot) => {
   qs.docChanges().forEach((chg: DocumentChange) => {
     if (chg.type == 'added') { currentlyOnline += 1 }
     if (chg.type == 'removed') { currentlyOnline -= 1 }
   })
 });
+
 
 setTimeout(addRandomDowntime, 120000);
