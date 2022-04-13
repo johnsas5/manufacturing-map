@@ -31,7 +31,7 @@ new Vue({
 // set up variables
 let currentlyOnline: number = 0;
 let currentlyDown = LinesDown;
-const app: FirebaseApp = initializeApp(firebaseConfig, "hans");
+const app: FirebaseApp = initializeApp(firebaseConfig, "manufacturing-map");
 const db: Firestore = getFirestore(app);
 
 // delete all online users (should not be any if server is starting up)
