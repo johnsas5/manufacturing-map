@@ -32,6 +32,7 @@
 import { Component, Prop, Vue } from 'vue-property-decorator';
 import { doc, setDoc,DocumentReference, getDocs,CollectionReference, collection, addDoc, QuerySnapshot, QueryDocumentSnapshot, DocumentData } from "firebase/firestore";
 import {getDatabase} from "firebase/database";
+import { chatmessagesColl } from "../dbCollections";
 import { db } from "../dbconfig";
 // import {
 //   addDoc,
@@ -66,8 +67,7 @@ export default class ChatView extends Vue {
   }
 
    GetMessages(): void {
-    const coll = collection(db, "messages");
-    const msgs = getDocs(coll).then( (qs: QuerySnapshot) =>{
+    const msgs = getDocs(chatmessagesColl).then( (qs: QuerySnapshot) =>{
       qs.forEach((qd: QueryDocumentSnapshot) => {
         // this.messages.set(qd.id,qd.data());
         // console.log(qd.data());
