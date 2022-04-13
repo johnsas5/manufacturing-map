@@ -21,11 +21,12 @@ import {
 } from "firebase/firestore";
 import { onlineUsersColl, downtimeEntriesColl } from "./dbCollections";
 
-Vue.config.productionTip = false
+Vue.config.productionTip = false;
+// Vue.use(VueRouter);
 
 new Vue({
-  render: h => h(App),
-}).$mount('#app')
+  render: (h) => h(App),
+}).$mount("#app");
 
 // set up variables
 let currentlyOnline: number = 0;
