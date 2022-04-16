@@ -1,15 +1,5 @@
 import {
-  Firestore,
-  doc,
-  query,
-  Query,
-  collection,
-  QuerySnapshot,
-  CollectionReference,
-  getDocs,
-  DocumentReference,
-  QueryDocumentSnapshot,
-  deleteDoc,
+  collection
 } from "firebase/firestore";
 import { db } from "./dbconfig";
 

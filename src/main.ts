@@ -2,18 +2,9 @@ import Vue from 'vue';
 import App from './App.vue';
 import { DowntimeEntry, LinesArr, LinesDown } from "./Types";
 import { deleteCollection, deleteCollectionWithQuery } from './deleteCollectionDb';
-import { FirebaseApp, initializeApp } from "firebase/app";
-import { firebaseConfig } from "./dbconfig";
 import { db } from './dbconfig';
 import { 
-  getFirestore,
-  Firestore,
-  doc,
   onSnapshot,
-  DocumentSnapshot,
-  FirestoreError,
-  CollectionReference,
-  collection,
   query,
   where,
   QuerySnapshot,
@@ -21,11 +12,20 @@ import {
   addDoc,
 } from "firebase/firestore";
 import { onlineUsersColl, onlineUsersCollName, downtimeEntriesColl, downtimeEntriesCollName } from "./dbCollections";
+import ChatView from "./views/ChatView.vue";
+import MapView from "./views/MapView.vue";
+import LoginView from "./views/LoginView.vue";
+import VueRouter, {RouteConfig} from "vue-router";
 
 Vue.config.productionTip = false;
-// Vue.use(VueRouter);
-
+Vue.use(VueRouter);
+const RouteArr: Array<RouteConfig> = [
+  {name: "Home", path: "/", component: MapView},
+  {name: "Login", path: "/login", component: LoginView},
+]
+const appRouter = new VueRouter({routes: RouteArr})
 new Vue({
+  router: appRouter,
   render: (h) => h(App),
 }).$mount("#app");
 
@@ -72,7 +72,9 @@ function addRandomDowntime() {
         notes: null,
         editedBy: null,
       };
-      addDoc(downtimeEntriesColl, dte);
+      addDoc(downtimeEntriesColl, dte)
+      .then(() => console.log("Downtime added: " + dte))
+      .catch((e) => console.log("Error adding downtime: " + e));
     }
   }
 }
@@ -82,7 +84,7 @@ onSnapshot(downtimeEntriesColl, (qs: QuerySnapshot) => {
   qs.docChanges().forEach((chg: DocumentChange) => {
     const d = chg.doc.data();
     for(let i = 0; i < LinesArr.length; ++i) {
-      if (d.line == LinesArr[i] && d.endTime != null) {currentlyDown[i] = false}
+      if (d.line == LinesArr[i] && d.endTime != null) {currentlyDown[i] = false;}
     }
   })
 })
@@ -92,6 +94,8 @@ onSnapshot(onlineUsersColl, (qs: QuerySnapshot) => {
   qs.docChanges().forEach((chg: DocumentChange) => {
     if (chg.type == 'added') { currentlyOnline += 1 }
     if (chg.type == 'removed') { currentlyOnline -= 1 }
+    //Delete
+    console.log("Currently Online: " + currentlyOnline);
   })
 });
 
