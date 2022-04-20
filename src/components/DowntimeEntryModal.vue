@@ -29,13 +29,17 @@ export default class DowntimeEntryModal extends Vue {
     this.message = "";
   }
 
-  clickSubmit() {
-    const qry = query(downtimeEntriesColl, where("endTime", "==", "null"), where("line", "==", `${this.line}`));
-    getDocs(qry).then((qs: QuerySnapshot) => {
-      qs.docs.forEach((d) => {
-        updateDoc(d.ref, {endTime: Date.now(), notes: this.message, editedBy: this.employee?.displayName})
-      });
+  async clickSubmit() {
+    const l: string = this.line;
+    const qry = query(downtimeEntriesColl, where("endTime", "==", null), where("line", "==", l));
+    await getDocs(qry).then((qs: QuerySnapshot) => {
+      if (!qs.empty) {
+        qs.docs.forEach((d) => {
+          updateDoc(d.ref, {endTime: Date.now(), notes: this.message, editedBy: this.employee?.displayName})
+        });
+      } else { console.log("query returned no docs") }
     })
+    .catch((e) => console.log("Error updating doc: " + e))
     this.$emit("close-modal");
   }
 }

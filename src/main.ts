@@ -12,18 +12,10 @@ import {
   addDoc,
 } from "firebase/firestore";
 import { onlineUsersColl, onlineUsersCollName, downtimeEntriesColl, downtimeEntriesCollName } from "./dbCollections";
-import ChatView from "./views/ChatView.vue";
-import MapView from "./views/MapView.vue";
-import LoginView from "./views/LoginView.vue";
-import VueRouter, {RouteConfig} from "vue-router";
-
+import appRouter from "./router";
+console.log("Enter main");
 Vue.config.productionTip = false;
-Vue.use(VueRouter);
-const RouteArr: Array<RouteConfig> = [
-  {name: "Home", path: "/", component: MapView},
-  {name: "Login", path: "/login", component: LoginView},
-]
-const appRouter = new VueRouter({routes: RouteArr})
+
 new Vue({
   router: appRouter,
   render: (h) => h(App),
@@ -41,8 +33,11 @@ const q = query(downtimeEntriesColl, where("endTime", "==", "null"));
 deleteCollectionWithQuery(downtimeEntriesColl, q);
 
 function allDown(): boolean {
-  for(const l of currentlyDown){
-    if (!l) { return false }
+  for (let i = 0; i < currentlyDown.length; ++i){
+    if (!currentlyDown[i]) { return false; }
+  }
+  for (const l of currentlyDown) {
+    if (!l) { return false; }
   }
   return true;
 }
@@ -50,11 +45,13 @@ function allDown(): boolean {
 // get random line that isn't already down
 function getRandomLine(): number {
   let lineIndex = -1;
-  if (!allDown) {
+  const d = allDown();
+  if (!allDown()) {
     let lineIsAlreadyDown = false;
     while (!lineIsAlreadyDown) {
       lineIndex = Math.floor(Math.random() * 9);
       lineIsAlreadyDown = currentlyDown[lineIndex];
+      break;
     }
   }
   return lineIndex;
@@ -62,7 +59,7 @@ function getRandomLine(): number {
 
 // Add downtime start entries (addition of base entry lets client know line is down) randomly if users are logged on
 function addRandomDowntime() {
-  if (currentlyOnline > 0) {
+  //if (currentlyOnline > 0) {
     const line = getRandomLine();
     if (line > -1) {
       const dte: DowntimeEntry = {
@@ -76,7 +73,7 @@ function addRandomDowntime() {
       .then(() => console.log("Downtime added: " + dte))
       .catch((e) => console.log("Error adding downtime: " + e));
     }
-  }
+  //}
 }
 
 // listen for downtime entries to have an endtime to clear the line down status
@@ -84,7 +81,8 @@ onSnapshot(downtimeEntriesColl, (qs: QuerySnapshot) => {
   qs.docChanges().forEach((chg: DocumentChange) => {
     const d = chg.doc.data();
     for(let i = 0; i < LinesArr.length; ++i) {
-      if (d.line == LinesArr[i] && d.endTime != null) {currentlyDown[i] = false;}
+      if (d.line == LinesArr[i] && d.endTime != null) 
+        {currentlyDown[i] = false;}
     }
   })
 })
@@ -101,3 +99,5 @@ onSnapshot(onlineUsersColl, (qs: QuerySnapshot) => {
 
 //Uncomment to test downtime entry communication code in main.ts (also mapview needs to be updated)
 //setTimeout(addRandomDowntime, 120000);
+
+//addRandomDowntime();

@@ -19,7 +19,7 @@ export async function deleteCollection(db: Firestore, collectionPath: string) {
 }
 
 export async function deleteCollectionWithQuery(coll: CollectionReference, q: Query) {
-  getDocs(q).then((qs: QuerySnapshot) => {
+  await getDocs(q).then((qs: QuerySnapshot) => {
     if (!qs.empty) {
       qs.forEach(async (qd: QueryDocumentSnapshot) => {
         const dr: DocumentReference = doc(coll, qd.id);

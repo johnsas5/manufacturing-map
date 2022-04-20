@@ -1,16 +1,16 @@
-// import Vue from "vue";
-// import VueRouter, { RouteConfig } from "vue-router";
-// import LoginView from "../views/LoginView.vue";
-// Vue.use(VueRouter);
+import Vue from "vue";
+import VueRouter, { RouteConfig } from "vue-router";
+import LoginView from "../views/LoginView.vue";
+import ChatView from "../views/ChatView.vue";
+import MapView from "../views/MapView.vue";
 
-// const routes: Array<RouteConfig> = [
-//   {
-//     path: "/",
-//     name: "login",
-//     component: LoginView,
-//   },
-// ];
+Vue.use(VueRouter);
 
-// const router = new VueRouter({ routes: routes });
+const routes: Array<RouteConfig> = [
+  {name: "Home", path: "/", component: MapView},
+  {name: "Login", path: "/login", component: LoginView},
+];
 
-// export default router;
+const appRouter = new VueRouter({ routes: routes });
+
+export default appRouter;
