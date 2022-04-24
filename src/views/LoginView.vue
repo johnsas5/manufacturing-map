@@ -48,7 +48,7 @@ export type AccountType = {
 
 @Component
 export default class LoginView extends Vue {
-  u_email = "mcbailey@toolingsystemsgroup.com";
+  u_email = "mcbailey";
   u_pass = "!freebeerRocks96?";
   message = "";
   auth: Auth | null = null;
@@ -76,22 +76,8 @@ export default class LoginView extends Vue {
     try {
       const cr: UserCredential = await createUserWithEmailAndPassword(
         this.auth!,
-        this.u_email,
+        this.u_email + "@gmail.com",
         this.u_pass
-      );
-
-      if (!this.emailVerification) {
-        this.showMessage(`New account created with UID ${cr.user.uid}`);
-
-        return;
-      }
-
-      await sendEmailVerification(cr.user);
-
-      await signOut(this.auth!);
-
-      this.showMessage(
-        "An email verification has been sent to " + cr.user.email
       );
     } catch (err) {
       this.showMessage(`Unable to create account ${err}`);
@@ -110,23 +96,21 @@ export default class LoginView extends Vue {
     }
   }
 
+  // loggedin(){
+  //   console.log("Login clicked");
+  // }
+
   async withEmail() {
     try {
       const cr: UserCredential = await signInWithEmailAndPassword(
         this.auth!,
-        this.u_email,
+        this.u_email + "@gmail.com",
         this.u_pass
       );
 
-      if (cr.user.emailVerified) {
-        // this.$router.push({ name: "home", params: { byWayOf: "Email" } });
-        this.showMessage(`You are logged in`);
-        return;
-      }
+      this.showMessage("Logged in");
 
-      this.showMessage("You must first verify your email");
-
-      await signOut(this.auth!);
+      this.$emit("loggedin", true);
     } catch (err) {
       this.showMessage(`Unable to login ${err}`);
     }
