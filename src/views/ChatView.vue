@@ -9,16 +9,29 @@
         <div id="chatDiv">
             <h1>CHAT</h1>
             <section >
-                <div>
+                <div id="my_scroll_div">
+                  <!-- <vue-scrolling-table id="center">
+                    <template #thead>
+                      <tr>
+                        <th>Messages</th>
+                      </tr>
+                    </template>
+                    <template #tbody>
+                      <tr v-for="message in messages" v-bind:key="message">
+                        <td>{{message}}</td>
+                      </tr>
+                    </template> -->
                     <table id="center">
                         <tr v-for="message in messages" v-bind:key="message">
                           <td>{{message}}</td>
                         </tr>
-                    </table>
+                   </table>
+                  <!-- </vue-scrolling-table> -->
                 </div>
             </section>
             <footer>
-                <form @submit.prevent="SendMessage, GetMessages">
+              <form @submit.prevent="SendMessage, GetMessages">
+                <!-- <form @submit.prevent="SendMessage, GetMessages"> -->
                     <label>Type a msg:</label>
                     <input v-model="tb_message" type="text" >
                     <button @click="SendMessage">Send</button>
@@ -30,10 +43,9 @@
 
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator';
-import { doc, setDoc,DocumentReference, getDocs,CollectionReference, collection, addDoc, QuerySnapshot, QueryDocumentSnapshot, DocumentData } from "firebase/firestore";
-import {getDatabase} from "firebase/database";
-import { chatmessagesColl } from "../dbCollections";
-import { db } from "../dbconfig";
+import { doc, onSnapshot, setDoc,DocumentChange, getDocs,CollectionReference, collection, addDoc, QuerySnapshot, QueryDocumentSnapshot, DocumentData } from "firebase/firestore";
+import {getDatabase} from "firebase/database"
+import db from '../dbconfig'
 // import {
 //   addDoc,
 //   collection,
@@ -45,7 +57,7 @@ import { db } from "../dbconfig";
 // } from "firebase/firestore";
 
 @Component
-export default class ChatView extends Vue {
+export default class HelloWorld extends Vue {
   @Prop() private msg!: string;
   @Prop() private tb_message!: string;
   @Prop() private tb_user!: string;
@@ -67,7 +79,8 @@ export default class ChatView extends Vue {
   }
 
    GetMessages(): void {
-    const msgs = getDocs(chatmessagesColl).then( (qs: QuerySnapshot) =>{
+    const coll = collection(db, "messages");
+    const msgs = getDocs(coll).then( (qs: QuerySnapshot) =>{
       qs.forEach((qd: QueryDocumentSnapshot) => {
         // this.messages.set(qd.id,qd.data());
         // console.log(qd.data());
@@ -87,6 +100,23 @@ export default class ChatView extends Vue {
       
     });
 
+
+  onSnapshot(collection(db,"messages"), (qs: QuerySnapshot) => {
+    qs.docChanges().forEach((chg: DocumentChange) => {
+      const d = chg.doc.data();
+      console.log(chg.doc.data());
+      for(let i = 0; i < this.messages.length; ++i) {
+        console.log("MESSAGE " + this.messages[i])
+          if (d.user.toString() + ": " + d.message.toString() == this.messages[i]) {
+            console.log("FOUND ONE");
+            this.messages = [];
+            this.tb_message = "";
+            this.GetMessages();
+            // this.messages[i] = d.user.toString() + ": " + d.message.toString();
+          }
+      }
+    })
+  })
     
     // console.log("before");
     // console.log(msgs);
@@ -117,7 +147,15 @@ export default class ChatView extends Vue {
   #center{
     margin-left: auto;
     margin-right: auto;
+    max-height: 25px;
   }
+
+#my_scroll_div{
+    overflow-y: auto;
+    max-height: 100px;
+}
+  
 </style>
 <!-- Add "scoped" attribute to limit CSS to this component only -->
+
 

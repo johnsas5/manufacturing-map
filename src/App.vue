@@ -2,7 +2,7 @@
   <div id="app">
     <transition name="shrink-explode">
       <router-view />
-    </transition>
+    </transition> -->
   </div>
 </template>
 
