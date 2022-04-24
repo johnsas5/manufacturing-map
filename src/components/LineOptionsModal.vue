@@ -1,10 +1,12 @@
 <template>
-  <div class="lineOptionsModal">
-    <button v-if="lineDown" @click="showDowntimeEntryModal = true; $emit('closeLineOptionsModal')">End Downtime</button>
-    <button>View Downtime Entries</button>
+  <div class="disableBackground">
+    <div id="lineOptionsModal" class="modal" >
+      <button v-if="lineDown && employee != null" @click="showDowntimeEntryModal = true; $emit('closeLineOptionsModal')">End Downtime</button>
+      <button>View Downtime Entries</button>
     <!-- <button v-if="employee == null">Working on line</button> -->
-    <button @click="$emit('close-modal')">Close</button>
-    <downtime-entry-modal v-if="showDowntimeEntryModal && employee != null" v-bind:line="line" v-bind:employee="employee" @close-modal="closeDowntimeEntryModal"/>
+      <button @click="$emit('close-modal')">Close</button>
+      <downtime-entry-modal v-if="showDowntimeEntryModal" v-bind:line="line" v-bind:employee="employee" @close-modal="closeDowntimeEntryModal"/>
+    </div>
   </div>
 </template>
 
@@ -32,5 +34,15 @@ export default class LineOptionsModal extends Vue {
 </script>
 
 <style>
-/* MODAL STUFF!!!!!!!!!!!!!!!!!! */
+  textarea {
+    font-size: 18pt;
+  }
+  .disableBackground {
+    position: fixed;
+    top: 0px;
+    right: 0px;
+    bottom: 0px;
+    left: 0px;
+    background-color: rgba(0,0,0, 0.3);
+  }
 </style>

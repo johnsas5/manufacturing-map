@@ -1,8 +1,9 @@
 <template>
-  <div id="downtimeEntryModal">
-    <h5>Enter downtime explanation for {{line}}:</h5>
+  <div id="downtimeEntryModal" class="modal">
+    <h1>Enter downtime explanation for {{line}}:</h1>
     <textarea id="downtimeEntryNotes" v-model="message" rows="6" cols="50" placeholder="Add Downtime info here" />
     <button @click="clickSubmit">Submit</button>
+    <button @click="$emit('close-modal')">Cancel</button>
   </div>
 </template>
 
@@ -46,5 +47,5 @@ export default class DowntimeEntryModal extends Vue {
 </script>
 
 <style>
-/*MODAL STUFF!!!!!!!!!!!!!! */
+
 </style>

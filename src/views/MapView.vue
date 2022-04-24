@@ -101,18 +101,20 @@ export default class MapView extends Vue {
   }
 
   setModalVars(l: string) {
-    if (l != "") {
-      this.modalLine = l;
-      let index = -1;
-      for(let i = 0; i < this.linesArr.length; ++i) {
-        if (this.linesArr[i] == l) {
-          index = i;
+    if (!this.showModal) {
+      if (l != "") {
+        this.modalLine = l;
+        let index = -1;
+        for(let i = 0; i < this.linesArr.length; ++i) {
+          if (this.linesArr[i] == l) {
+            index = i;
+          }
         }
+        this.modalLineIsDown = this.lines[index] == "isdown";
       }
-      this.modalLineIsDown = this.lines[index] == "isdown";
+      this.modalEmployee = this.auth?.currentUser != null ? this.auth.currentUser : null
+      this.showModal = true;
     }
-    this.modalEmployee = this.auth?.currentUser != null ? this.auth.currentUser : null
-    this.showModal = true;
   }
 
   closeLineOptionsModal() {
