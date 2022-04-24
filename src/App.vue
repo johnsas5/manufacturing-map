@@ -4,10 +4,9 @@
       <router-link to="/">Home</router-link> |
       <router-link to="/about">About</router-link>
     </nav> -->
-    <chat-view/>
-    <!-- <transition name="shrink-explode">
+    <transition name="shrink-explode">
       <router-view />
-    </transition> -->
+    </transition>
   </div>
 </template>
 
