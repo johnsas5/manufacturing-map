@@ -5,7 +5,7 @@
       <button>View Downtime Entries</button>
     <!-- <button v-if="employee == null">Working on line</button> -->
       <button @click="$emit('close-modal')">Close</button>
-      <downtime-entry-modal v-if="showDowntimeEntryModal" v-bind:line="line" v-bind:employee="employee" @close-modal="closeDowntimeEntryModal"/>
+      <downtime-entry-modal v-if="showDowntimeEntryModal" v-bind:line="line" v-bind:employee="employee" docId="null" @close-modal="closeDowntimeEntryModal"/>
     </div>
   </div>
 </template>
@@ -29,6 +29,7 @@ export default class LineOptionsModal extends Vue {
 
   closeDowntimeEntryModal() {
     this.showDowntimeEntryModal = false;
+    this.$emit("close-modal");
   }
 }
 </script>
