@@ -22,16 +22,16 @@
                       </tr>
                     </template> -->
                     <table id="center">
-                        <tr v-for="message in messages" v-bind:key="message">
-                          <td>{{message}}</td>
+                        <tr v-for="(m,pos) in messages" v-bind:key=pos>
+                          <td>{{m}}</td>
                         </tr>
                    </table>
                   <!-- </vue-scrolling-table> -->
                 </div>
             </section>
             <footer>
-              <form @submit.prevent="SendMessage, GetMessages">
-                <!-- <form @submit.prevent="SendMessage, GetMessages"> -->
+              <!-- <form> -->
+                <form @submit.prevent="SendMessage, GetMessages">
                     <label>Type a msg:</label>
                     <input v-model="tb_message" type="text" >
                     <button @click="SendMessage">Send</button>
@@ -58,9 +58,9 @@ import db from '../dbconfig'
 
 @Component
 export default class HelloWorld extends Vue {
-  @Prop() private msg!: string;
-  @Prop() private tb_message!: string;
-  @Prop() private tb_user!: string;
+  private msg!: string;
+  public tb_message= "";
+  private tb_user = "";
 
   public messages:any = [];
 
@@ -73,9 +73,8 @@ export default class HelloWorld extends Vue {
       user: this.tb_user,
       message: this.tb_message
     });
-    this.messages = [];
+    
     this.tb_message = "";
-    this.GetMessages();
   }
 
    GetMessages(): void {
@@ -102,20 +101,25 @@ export default class HelloWorld extends Vue {
 
 
   onSnapshot(collection(db,"messages"), (qs: QuerySnapshot) => {
-    qs.docChanges().forEach((chg: DocumentChange) => {
+    try{
+      qs.docChanges().forEach((chg: DocumentChange) => {
       const d = chg.doc.data();
       console.log(chg.doc.data());
-      for(let i = 0; i < this.messages.length; ++i) {
-        console.log("MESSAGE " + this.messages[i])
-          if (d.user.toString() + ": " + d.message.toString() == this.messages[i]) {
-            console.log("FOUND ONE");
-            this.messages = [];
-            this.tb_message = "";
-            this.GetMessages();
-            // this.messages[i] = d.user.toString() + ": " + d.message.toString();
-          }
-      }
+      this.messages.push(d.user.toString() + ": " + d.message.toString());
+      // for(let i = 0; i < this.messages.length; ++i) {
+      //   console.log("MESSAGE " + this.messages[i])
+      //     if (d.user.toString() + ": " + d.message.toString() == this.messages[i] && d.user.toString() != null) {
+      //       console.log("FOUND ONE");
+      //       // this.messages = [];
+      //       // this.tb_message = "";
+      //       // this.GetMessages();
+      //       // 
+      //     }
+      // }
     })
+    }catch(e){
+      console.log(e);
+    }
   })
     
     // console.log("before");
@@ -152,10 +156,11 @@ export default class HelloWorld extends Vue {
 
 #my_scroll_div{
     overflow-y: auto;
-    max-height: 100px;
+    max-height: 500px;
+    display: flex;
+    flex-direction: column-reverse;
 }
   
 </style>
 <!-- Add "scoped" attribute to limit CSS to this component only -->
-
 
