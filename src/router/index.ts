@@ -3,12 +3,11 @@ import VueRouter, { RouteConfig } from "vue-router";
 import LoginView from "../views/LoginView.vue";
 import ChatView from "../views/ChatView.vue";
 import MapView from "../views/MapView.vue";
-import HelloWorld from "../views/ChatView.vue"
 
 Vue.use(VueRouter);
 
 const routes: Array<RouteConfig> = [
-  {name: "Home", path: "/", component: HelloWorld},
+  {name: "Home", path: "/", component: MapView},
   {name: "Login", path: "/login", component: LoginView},
 ];
 

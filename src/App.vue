@@ -1,14 +1,11 @@
 <template>
   <div id="app">
-    <!-- <nav>
-      <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link>
-    </nav> -->
     <transition name="shrink-explode">
       <router-view />
     </transition>
   </div>
 </template>
+
 
 <style>
 #app {
