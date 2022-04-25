@@ -1,9 +1,12 @@
 <template>
   <div @click="clickedLine = ''">
     <button v-if="!isUserLoggedIn" @click="loggedInClicked">Log In</button>
-    <button v-if="isUserLoggedIn" @click="loggedOutClicked">Log Out of {{ currentUserName }}</button>
-    <login-view v-if="!isUserLoggedIn && showLogin" @loggedin="loggedInClicked"/>
-    <!-- <label v-if="isLoggedIn" >{{}}</label> -->
+    <button v-if="isUserLoggedIn" @click="loggedOutClicked">
+      Log Out of {{ currentUserName }}
+    </button>
+    <button v-if="isUserLoggedIn" @click="settingsClicked">Settings</button>
+    <!-- <login-view v-if="!isUserLoggedIn && showLogin" @loggedin="loggedInClicked"/> -->
+
     <svg
       width="14in"
       height="8.5in"
@@ -302,16 +305,22 @@ export default class MapView extends Vue {
     logAuthData(this.auth);
     this.setInitialDownLinesState();
     this.dteListener();
-    console.log("element 4: " + this.linesDown[3]);
+    console.log(`element 4: ${this.linesDown[3]}`);
   }
 
   loggedInClicked() {
     this.showLogin = true;
 
-    this.$forceUpdate();
+    this.$router.push({ path: "/login" });
   }
 
-   loggedOutClicked() {
+  settingsClicked() {
+    if (!this.isUserLoggedIn) throw Error("Nobody is logged in.");
+
+    this.$router.push({ path: "/settings" });
+  }
+
+  loggedOutClicked() {
     this.showLogin = false;
 
     signOut(getAuth(app));
@@ -319,7 +328,7 @@ export default class MapView extends Vue {
     this.$forceUpdate();
   }
 
-  // get lines currenlty down and sets the ui binded variables to false
+  // get lines currently down and sets the ui binded variables to false
   setInitialDownLinesState() {
     const q = query(downtimeEntriesColl, where("endTime", "==", "null"));
     getDocsWithQuery(q, (qs: QuerySnapshot<DocumentData>) => {
@@ -334,15 +343,28 @@ export default class MapView extends Vue {
   get isUserLoggedIn() {
     this.auth = getAuth(app);
 
-    if(!this.auth)
-      return false;
+    if (!this.auth) return false;
 
     if (this.auth.currentUser) return true;
     return false;
   }
 
-  get currentUserName(){
-    return this.auth?.currentUser?.email;
+  get currentUserName(): string {
+    const auth = this.auth;
+
+    if (!auth) return "";
+
+    const user = auth.currentUser;
+
+    if (!user) return "";
+
+    const displayName = user.displayName;
+
+    if (!displayName) return "";
+
+    return displayName;
+
+    // return this.auth?.currentUser?.email;
   }
 
   // listen for new downtime entries

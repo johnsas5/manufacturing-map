@@ -1,30 +1,14 @@
 <template>
   <div>
-    <section>
-      <div id="loginpanel">
-        <input type="text" v-model="u_email" placeholder="Enter your email" />
-        <input
-          type="password"
-          v-model="u_pass"
-          placeholder="Enter your password"
-        />
-        <div id="loginByEmail">
-          <button :disabled="!isValidInput" @click="createAccount">
-            Signup
-          </button>
-          <button :disabled="u_email.length === 0" @click="resetPass">
-            Reset Password
-          </button>
-          <button :disabled="!isValidInput" @click="withEmail">Login</button>
-        </div>
-        <div>
-          <input id="verif" type="checkbox" v-model="emailVerification" />
-          <label for="verif">Send verification email</label>
-        </div>
-      </div>
-    </section>
+    <label>Display Name: </label>
+    <input type="text" v-model="displayNameText" />
+    <p />
+    <label>Photo Url: </label>
+    <input type="text" v-model="photoUrlText" />
+    <p />
+
     <button @click="returnClicked">Return</button>
-    <span id="msgbox" v-show="message.length > 0">{{ message }}</span>
+    <button @click="updateClicked">Update</button>
   </div>
 </template>
 
@@ -49,13 +33,15 @@ export type AccountType = {
 };
 
 @Component
-export default class LoginView extends Vue {
+export default class SettingsView extends Vue {
   u_email = "mcbailey";
   u_pass = "!freebeerRocks96?";
   message = "";
   auth: Auth | null = null;
   emailVerification = false;
   $router: any;
+  displayNameText = "";
+  photoUrlText = "";
 
   get isValidInput(): boolean {
     return this.u_email.length > 0 && this.u_pass.length > 0;
@@ -67,6 +53,29 @@ export default class LoginView extends Vue {
 
   mounted(): void {
     this.auth = getAuth();
+
+    const user = this.auth.currentUser;
+
+    if (!user) return;
+
+    this.displayNameText = user.displayName ?? "";
+
+    this.photoUrlText = user.photoURL ?? "";
+  }
+
+  updateClicked() {
+    if (!this.auth) return;
+
+    const user = this.auth.currentUser;
+
+    if (!user) return;
+
+    updateProfile(user, {
+      displayName: this.displayNameText,
+      photoURL: this.photoUrlText,
+    });
+
+    console.log(user);
   }
 
   showMessage(txt: string) {
