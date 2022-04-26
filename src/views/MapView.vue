@@ -297,7 +297,7 @@ export default class MapView extends Vue {
     logAuthData(this.auth);
     this.setInitialDownLinesState();
     this.dteListener();
-    console.log("element 4: " + this.linesDown[3]);
+    console.log(`element 4: ${this.linesDown[3]}`);
   }
 
   // get lines currenlty down and sets the ui binded variables to false
@@ -315,15 +315,28 @@ export default class MapView extends Vue {
   get isUserLoggedIn() {
     this.auth = getAuth(app);
 
-    if(!this.auth)
-      return false;
+    if (!this.auth) return false;
 
     if (this.auth.currentUser) return true;
     return false;
   }
 
-  get currentUserName(){
-    return this.auth?.currentUser?.email;
+  get currentUserName(): string {
+    const auth = this.auth;
+
+    if (!auth) return "";
+
+    const user = auth.currentUser;
+
+    if (!user) return "";
+
+    const displayName = user.displayName;
+
+    if (!displayName) return "";
+
+    return displayName;
+
+    // return this.auth?.currentUser?.email;
   }
 
   // listen for new downtime entries
