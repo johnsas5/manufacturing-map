@@ -1,9 +1,5 @@
 <template>
   <div @click="clickedLine = ''">
-    <button v-if="!isUserLoggedIn" @click="loggedInClicked">Log In</button>
-    <button v-if="isUserLoggedIn" @click="loggedOutClicked">Log Out of {{ currentUserName }}</button>
-    <login-view v-if="!isUserLoggedIn && showLogin" @loggedin="loggedInClicked"/>
-    <!-- <label v-if="isLoggedIn" >{{}}</label> -->
     <svg
       width="14in"
       height="8.5in"
@@ -282,7 +278,7 @@ import { app } from "../dbconfig";
 @Component({
   components: {
     LineOptionsModal,
-    LoginView,
+    LoginView
   },
 })
 export default class MapView extends Vue {
@@ -294,7 +290,6 @@ export default class MapView extends Vue {
   modalLineIsDown = false;
   modalEmployee: User | null = null;
   showModal = false;
-
   showLogin = false;
 
   mounted() {
@@ -303,20 +298,6 @@ export default class MapView extends Vue {
     this.setInitialDownLinesState();
     this.dteListener();
     console.log("element 4: " + this.linesDown[3]);
-  }
-
-  loggedInClicked() {
-    this.showLogin = true;
-
-    this.$forceUpdate();
-  }
-
-   loggedOutClicked() {
-    this.showLogin = false;
-
-    signOut(getAuth(app));
-
-    this.$forceUpdate();
   }
 
   // get lines currenlty down and sets the ui binded variables to false

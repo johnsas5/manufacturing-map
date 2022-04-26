@@ -48,8 +48,8 @@ export type AccountType = {
 
 @Component
 export default class LoginView extends Vue {
-  u_email = "mcbailey";
-  u_pass = "!freebeerRocks96?";
+  u_email = "";
+  u_pass = "";
   message = "";
   auth: Auth | null = null;
   emailVerification = false;
@@ -149,6 +149,7 @@ section {
 input {
   margin: 0.25em;
   align-self: stretch;
+  font-size: 18px;
 }
 
 button {

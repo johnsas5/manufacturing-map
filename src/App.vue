@@ -1,33 +1,30 @@
 <template>
   <div id="app">
+    <nav-bar-custom />
     <transition name="shrink-explode">
       <router-view />
     </transition>
   </div>
 </template>
 
+<script lang="ts">
+import Vue from 'vue';
+import { component } from 'vue/types/umd';
+import NavBarCustom from "./components/NavBarCustom.vue";
+
+export default Vue.extend({
+  components: { NavBarCustom }
+})
+</script>
 
 <style>
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
 }
 
-nav {
-  padding: 30px;
-}
-
-nav a {
-  font-weight: bold;
-  color: #2c3e50;
-}
-
-nav a.router-link-exact-active {
-  color: #42b983;
-}
-
 button {
   background-color: hsl(200, 100%, 80%);
-  font-size: 22px;
+  font-size: 18px;
   padding: 15px;
   margin: 20px;
   border-radius: 5px;
