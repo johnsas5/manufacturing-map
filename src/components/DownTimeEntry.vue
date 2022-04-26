@@ -1,36 +1,44 @@
 <template>
-  <div class="Down Time">
+  <div class="chat">
+        
         <div id="chatDiv">
-            <h1>Down Time</h1>
             <section >
+              <h1>Test</h1>
                 <div id="my_scroll_div">
-                  
+                  <!-- <vue-scrolling-table id="center">
+                    <template #thead>
+                      <tr>
+                        <th>Messages</th>
+                      </tr>
+                    </template>
+                    <template #tbody>
+                      <tr v-for="message in messages" v-bind:key="message">
+                        <td>{{message}}</td>
+                      </tr>
+                    </template> -->
                     <table id="center">
-                        <tr v-for="message in messages" v-bind:key="message">
-                          <td>{{message}}</td>
+                      
+                        <tr v-for="(m,pos) in downTimes" v-bind:key=pos>
+                          <td>Date Down:{{m.startTime}}</td>
+                          <td>Date Resolved: {{m.endTime}}</td>
+                          <td>personEdit: {{m.editedBy}}</td>
                         </tr>
                    </table>
                   <!-- </vue-scrolling-table> -->
                 </div>
             </section>
-            <footer>
-                <form @submit.prevent="SendMessage, GetMessages">
-                    <label>Type a msg:</label>
-                    <input v-model="tb_note" type="text" >
-                    <button @click="NewDownTime">Submit</button>
-                </form>
-            </footer>
+            <footer/>
         </div>
     </div>
 </template>
 
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator';
-import { doc, setDoc,DocumentReference, getDocs,CollectionReference, collection, addDoc, QuerySnapshot, QueryDocumentSnapshot, DocumentData, Firestore } from "firebase/firestore";
+import { doc, onSnapshot, setDoc,DocumentChange, getDocs,CollectionReference, collection, addDoc, QuerySnapshot, QueryDocumentSnapshot, DocumentData } from "firebase/firestore";
 import {getDatabase} from "firebase/database"
-import { getAuth } from "firebase/auth";
 import db from '../dbconfig'
-
+import { downtimeEntriesCollName, downtimeEntriesColl } from '../dbCollections'
+import {DowntimeEntry} from '../Types'
 // import {
 //   addDoc,
 //   collection,
@@ -42,47 +50,114 @@ import db from '../dbconfig'
 // } from "firebase/firestore";
 
 @Component
-export default class HelloWorld extends Vue {
-  @Prop() private msg!: string;
-  @Prop() private tb_note!: string;
-  @Prop() public line = "";
-  public entries:any = [];
-  public user:any = "";
+export default class DownTimeEntries extends Vue {
+  
+  public downTimes:any = [];
 
   mounted(): void {
-    console.log("LINE: " + this.line)
-    this.GetDownTimes(this.line);
-    
-    this.user = getAuth();
+    this.GetDownTime();
   }
 
-  NewDownTime(line:string): void { 
-    setDoc(doc(db, "DownTime", line.toString()), {
-        // Down Time Data
-        DateDown: new Date().toString(),
-        DateResolved:"",
-        Notes: this.tb_note,
-        personEdit:this.user,
-    //   user: this.tb_user,
-    //   message: this.tb_message
-    });
-    this.entries = [];
-    this.tb_note = "";
-    this.GetDownTimes(line);
-  }
 
-   GetDownTimes(line:string): void {
-    const coll = collection(db, "DownTime/" + line);
-    const msgs = getDocs(coll).then( (qs: QuerySnapshot) =>{
-      qs.forEach((qd: QueryDocumentSnapshot) => {
-        var tmp = qd.data();
-        this.entries.push(tmp.DateDown.toString() + ": " + tmp.DateResolved.toString() + ": " + tmp.personEdit.toString() );
-        console.log(this.entries);
+
+  GetDownTime(): void {
+  const coll = collection(db, downtimeEntriesCollName);
+     const msgs = getDocs(coll).then( (qs: QuerySnapshot) =>{
+       var id = 0;
+      console.log("Before loop");
+       qs.forEach((qd: QueryDocumentSnapshot) => {
+        //  console.log(qd.data());
+         var d = qd.data();
+         var entry : DowntimeEntry = {
+            startTime: d.startTime,
+            endTime: d.endTime,
+            line: d.line,
+            notes: d.notes,
+            editedBy: d.editedBy 
+         };
+        //  console.log(entry);
+         this.downTimes.push(entry);
     });
-      
+      console.log("After loop");
     });
     
+    onSnapshot(collection(db,downtimeEntriesCollName), (qs: QuerySnapshot) => {
+      try{
+        qs.docChanges().forEach((chg: DocumentChange) => {
+        const d = chg.doc.data();
+        console.log(chg.doc.data());
+        var entryDoc : DowntimeEntry = {
+              startTime: d.startTime,
+              endTime: d.endTime,
+              line: d.line,
+              notes: d.notes,
+              editedBy: d.editedBy 
+        };
+
+      this.downTimes.push(entryDoc);
+      // for(let i = 0; i < this.messages.length; ++i) {
+      //   console.log("MESSAGE " + this.messages[i])
+      //     if (d.user.toString() + ": " + d.message.toString() == this.messages[i] && d.user.toString() != null) {
+      //       console.log("FOUND ONE");
+      //       // this.messages = [];
+      //       // this.tb_message = "";
+      //       // this.GetMessages();
+      //       // 
+      //     }
+      // }
+        })
+      }catch(e){
+        console.log(e);
+      }
+  })
   }
+
+
+
+  // onSnapshot( collection(db, "DownTime"), (qs: QuerySnapshot) => {
+  // try{
+  //      qs.docChanges().forEach((chg: DocumentChange) => {
+  // //     const d = chg.doc.data();
+  // //     console.log(chg.doc.data());
+
+  // //     var entry =  <DowntimeEntry>({
+  // //           startTime: d.startTime,
+  // //           endTime: d.endTime,
+  // //           line: d.line,
+  // //           notes: d.message,
+  // //           editedBy: d.editedBy 
+  // //       });
+
+  // //     this.downTimes.set(this.downTimes.size,entry);
+  //    });
+  // }catch(e){
+  //      console.log(e);
+  // }
+  // // })
+  // }
+  //   // console.log("before");
+  //   // console.log(msgs);
+  //   // console.log("after");
+  //   // const docSnap = await getDoc(docRef);
+
+  //   // if (docSnap.exists()) {
+  //   //   console.log("Document data:", docSnap.data());
+  //   // } else {
+  //   //   // doc.data() will be undefined in this case
+  //   //   console.log("No such document!");
+  //   // }
+  //   // return docSnap
+  //   // this.messages = getDocs(doc(db,"messages"));
+  //   // getDoc(doc(db,"messages")).then((caliSnapshot: DocumentSnapshot) => {
+  //   // if (caliSnapshot.exists()) console.log("Info on CA", caliSnapshot.data().toString());
+  //   // else console.error("Document not found");
+  //   // });
+  //   // this.messages = doc(db,"messages");
+  //   // for (let [key, value] of this.messages) {
+  //   // console.log(key, value)
+  //   // }
+    
+  // }
 }
 </script>
 <style scoped>
@@ -94,7 +169,11 @@ export default class HelloWorld extends Vue {
 
 #my_scroll_div{
     overflow-y: auto;
-    max-height: 100px;
+    max-height: 500px;
+    display: flex;
+    flex-direction: column-reverse;
 }
   
 </style>
+<!-- Add "scoped" attribute to limit CSS to this component only -->
+

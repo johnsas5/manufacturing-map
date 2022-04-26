@@ -292,12 +292,28 @@ export default class MapView extends Vue {
   showModal = false;
   showLogin = false;
 
+  showLogin = false;
+
   mounted() {
     this.auth = getAuth(app);
     logAuthData(this.auth);
     this.setInitialDownLinesState();
     this.dteListener();
     console.log(`element 4: ${this.linesDown[3]}`);
+  }
+
+  loggedInClicked() {
+    this.showLogin = true;
+
+    this.$forceUpdate();
+  }
+
+   loggedOutClicked() {
+    this.showLogin = false;
+
+    signOut(getAuth(app));
+
+    this.$forceUpdate();
   }
 
   // get lines currenlty down and sets the ui binded variables to false
