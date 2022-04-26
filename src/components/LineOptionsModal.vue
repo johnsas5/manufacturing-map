@@ -1,7 +1,7 @@
 <template>
   <div class="disableBackground">
     <div id="lineOptionsModal" class="modal" >
-      <button v-if="lineDown" @click="showDowntimeEntryModal = true; $emit('closeLineOptionsModal')">End Downtime</button>
+      <button v-if="lineDown && this.employee != null" @click="showDowntimeEntryModal = true; $emit('closeLineOptionsModal')">End Downtime</button>
       <button @click="this.$router.push({path: '/downtimeEntries'})">View Downtime Entries</button>
     <!-- <button v-if="employee == null">Working on line</button> -->
       <button @click="$emit('close-modal')">Close</button>

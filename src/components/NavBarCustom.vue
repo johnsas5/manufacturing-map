@@ -1,7 +1,11 @@
 <template>
   <nav id="navbar">
-    <div class="menu-item menu-item-style"><router-link to="/">Home</router-link></div>
-    <div class="menu-item menu-item-style"><router-link to="/downtimeEntries">Downtime History</router-link></div>
+    <div class="menu-item menu-item-style" @click="homeClick">
+      <a href="#">Home</a>
+    </div>
+    <div class="menu-item menu-item-style" @click="downtimeClick">
+      <a href="#">Downtime History</a>
+      </div>
     <div class="menu-item-style subMenu" @click="dropDownToggle()" >
       <a href="#">User</a>
       <svg class="subMenuGraphic" viewBox="0 0 1030 638" width="10">
@@ -11,7 +15,7 @@
         <div class="menu-item-style" @click="loginClick()">
           <a href="#" >{{loginText}}</a>
         </div>
-        <div class="menu-item-style" @click="settingsClick()">
+        <div v-if="this.currentUser != null" class="menu-item-style" @click="settingsClick()">
           <a href="#" >Settings</a>
         </div>
       </div>
@@ -21,41 +25,55 @@
 
 <script lang="ts">
 import { Vue, Component } from "vue-property-decorator";
-import { getAuth, Auth, signOut } from '@firebase/auth';
+import { getAuth, Auth, signOut, onAuthStateChanged, User } from '@firebase/auth';
 
 @Component
 export default class NavBarCustom extends Vue{
   isOpen = false;
-  auth: Auth | null = null;
+  currentUser: User | null = null;
   loginText = "Login";
 
   mounted() {
-    this.auth = getAuth();
+    const auth = getAuth();
+    onAuthStateChanged(auth, (user: User|null) => {
+      if (this.currentUser == null  && user != null){
+        this.currentUser = user;
+        this.loginText = "Logout";
+        this.isOpen = false;
+      }
+      else if (this.currentUser != null && user == null) {
+        this.currentUser = null;
+        this.loginText = "Login";
+        this.isOpen = false;
+      }
+    })
   }
 
   dropDownToggle() {
     this.isOpen = !this.isOpen;
-    this.updateAuth();
+  }
+
+  homeClick() {
+    this.isOpen = false;
+    this.$router.push({path: "/"});
+  }
+
+  downtimeClick() {
+    this.isOpen = false;
+    this.$router.push({path: "/downtimeEntries"});
   }
 
   loginClick() {
-    if (this.auth?.currentUser != null) {
-       signOut(this.auth);
-     }
-    this.$router.push({path: "/login"})
-    this.updateAuth();
     this.isOpen = false;
+    if (this.currentUser != null) {
+       signOut(getAuth());
+     }
+    this.$router.push({path: "/login"});
   }
 
   settingsClick() {
-    this.$router.push({path: "/settings"});
-    this.updateAuth();
     this.isOpen = false;
-  }
-
-  updateAuth() {
-    this.auth = getAuth();
-    this.auth?.currentUser == null ? this.loginText = "Login" : this.loginText = "Logout";
+    this.$router.push({path: "/settings"});
   }
 }
 </script>
@@ -110,7 +128,7 @@ nav svg {
   position: absolute;
   padding-bottom: 10px;
   transform: translate(-40px, 15px);
-  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  background-color: hsl(200, 93%, 90%);
   z-index: 1;
 }
 .subMenu-content div {
@@ -122,6 +140,9 @@ nav svg {
 }
 a {
   text-decoration: none;
+}
+nav div {
+  cursor: pointer;
 }
 
 </style>

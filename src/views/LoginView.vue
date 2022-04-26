@@ -102,10 +102,6 @@ export default class LoginView extends Vue {
     }
   }
 
-  // loggedin(){
-  //   console.log("Login clicked");
-  // }
-
   async withEmail() {
     try {
       const cr: UserCredential = await signInWithEmailAndPassword(
@@ -145,6 +141,7 @@ export default class LoginView extends Vue {
   border: 1px solid black;
   padding: 0.5em;
   border-radius: 0.5em;
+  margin: 25px;
 }
 
 section {

@@ -123,16 +123,16 @@ export default class SettingsView extends Vue {
 
       const auth = getAuth();
 
-      if (auth) {
-        const user = auth.currentUser;
+      // if (auth) {
+      //   const user = auth.currentUser;
 
-        if (user) {
-          await updateProfile(user, {
-            displayName: "Jane Q. User",
-            photoURL: "https://example.com/jane-q-user/profile.jpg",
-          });
-        }
-      }
+      //   if (user) {
+      //     await updateProfile(user, {
+      //       displayName: user,
+      //       photoURL: user.photoURL,
+      //     });
+      //   }
+      //}
 
       this.returnClicked();
     } catch (err) {

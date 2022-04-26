@@ -1,13 +1,7 @@
 <template>
   <div class="chat">
-        <div>
-            <label>Enter your username</label>
-            <input v-model="tb_user" type=text>
-            <button >Enter</button>
-
-        </div>
         <div id="chatDiv">
-            <h1>CHAT</h1>
+            <h2>Chat</h2>
             <section >
                 <div id="my_scroll_div">
                   <!-- <vue-scrolling-table id="center">
@@ -32,7 +26,7 @@
             <footer>
               <!-- <form> -->
                 <form @submit.prevent="SendMessage, GetMessages">
-                    <label>Type a msg:</label>
+                    <label>{{currentUser.displayName}}:</label>
                     <input v-model="tb_message" type="text" >
                     <button @click="SendMessage">Send</button>
                 </form>
@@ -44,6 +38,7 @@
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator';
 import { doc, onSnapshot, setDoc,DocumentChange, getDocs,CollectionReference, collection, addDoc, QuerySnapshot, QueryDocumentSnapshot, DocumentData } from "firebase/firestore";
+import { getAuth, Auth, User, signOut } from "@firebase/auth";
 import {getDatabase} from "firebase/database"
 import db from '../dbconfig'
 // import {
@@ -58,19 +53,20 @@ import db from '../dbconfig'
 
 @Component
 export default class HelloWorld extends Vue {
-  private msg!: string;
-  public tb_message= "";
-  private tb_user = "";
-
-  public messages:any = [];
+  @Prop() readonly currentUser!: User;
+  private msg = "";
+  public tb_message = "";
+  public messages: Array<string> = [];
 
   mounted(): void {
     this.GetMessages();
   }
 
   SendMessage(): void { 
+    let u = "";
+    this.currentUser.displayName != null ? u = this.currentUser.displayName : u = this.currentUser.uid;
     setDoc(doc(db, "messages", (new Date()).toString()), {
-      user: this.tb_user,
+      user: this.currentUser.displayName,
       message: this.tb_message
     });
     
@@ -152,6 +148,12 @@ export default class HelloWorld extends Vue {
     margin-left: auto;
     margin-right: auto;
     max-height: 25px;
+  }
+  #center td {
+    padding: 20px;
+    border: black;
+    border-style: solid;
+    border-width: 1px;
   }
 
 #my_scroll_div{

@@ -48,5 +48,9 @@ button:hover {
   left: 50%;
   transform: translate(-50%, -50%);
 }
-
+input {
+  margin: 0.25em;
+  align-self: stretch;
+  font-size: 18px;
+}
 </style>

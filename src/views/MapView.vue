@@ -251,12 +251,16 @@
         @close-modal="closeLineOptionsModal"
       />
     </div>
+    <div class="sidebar">
+      <chat-view v-if="this.auth != null && this.auth.currentUser != null" v-bind:currentUser="this.auth.currentUser" />
+    </div>
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Prop, Vue } from "vue-property-decorator";
 import LineOptionsModal from "../components/LineOptionsModal.vue";
+import ChatView from "./ChatView.vue";
 import { downtimeEntriesColl } from "../dbCollections";
 import { getDocsWithQuery } from "../getDocsFromCollDb";
 import { DowntimeEntry, LinesArr, LinesDown } from "../Types";
@@ -272,18 +276,17 @@ import {
 } from "firebase/firestore";
 import { getAuth, Auth, User, signOut } from "@firebase/auth";
 import LoginView from "./LoginView.vue";
-import { UserCredential, signInWithEmailAndPassword } from "firebase/auth";
 import { app } from "../dbconfig";
 
 @Component({
   components: {
     LineOptionsModal,
-    LoginView
+    LoginView,
+    ChatView
   },
 })
 export default class MapView extends Vue {
-  linesDown = LinesDown;
-  linesArr = LinesArr;
+  linesArr = LinesArr; 
   lines = new Array<string>(LinesArr.length).fill("isup");
   auth: Auth | null = null;
   modalLine = "";
@@ -297,46 +300,22 @@ export default class MapView extends Vue {
     logAuthData(this.auth);
     this.setInitialDownLinesState();
     this.dteListener();
-    console.log(`element 4: ${this.linesDown[3]}`);
   }
 
   // get lines currenlty down and sets the ui binded variables to false
   setInitialDownLinesState() {
-    const q = query(downtimeEntriesColl, where("endTime", "==", "null"));
+    const q = query(downtimeEntriesColl, where("endTime", "==", null));
     getDocsWithQuery(q, (qs: QuerySnapshot<DocumentData>) => {
       qs.docs.forEach((d) => {
         for (let i = 0; i < this.linesArr.length; ++i) {
-          this.lines[i] = "isdown";
+          const l = d.data();
+          if (l.line == this.linesArr[i]) {
+            this.lines[i] = "isdown";
+          }
         }
+        this.$forceUpdate();
       });
     });
-  }
-
-  get isUserLoggedIn() {
-    this.auth = getAuth(app);
-
-    if (!this.auth) return false;
-
-    if (this.auth.currentUser) return true;
-    return false;
-  }
-
-  get currentUserName(): string {
-    const auth = this.auth;
-
-    if (!auth) return "";
-
-    const user = auth.currentUser;
-
-    if (!user) return "";
-
-    const displayName = user.displayName;
-
-    if (!displayName) return "";
-
-    return displayName;
-
-    // return this.auth?.currentUser?.email;
   }
 
   // listen for new downtime entries
@@ -353,6 +332,7 @@ export default class MapView extends Vue {
             }
           }
         }
+        this.$forceUpdate();
       });
     });
   }
@@ -376,7 +356,6 @@ export default class MapView extends Vue {
   }
 
   closeLineOptionsModal() {
-    console.log("closing modal");
     this.modalLine = "";
     this.modalLineIsDown = false;
     this.modalEmployee = null;
@@ -393,5 +372,20 @@ export default class MapView extends Vue {
 .isup {
   fill: hsl(0, 0%, 100%);
   fill-opacity: 0%;
+}
+.sidebar {
+height: 100%;
+max-width: 30%;
+position: fixed;
+top: 70px;
+right: 0;
+padding-top: 40px;
+background-color: hsl(0, 0%, 95%);
+}
+
+.sidebar div {
+padding: 8px;
+font-size: 24px;
+display: block;
 }
 </style>
