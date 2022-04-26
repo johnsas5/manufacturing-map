@@ -50,7 +50,7 @@ import {DowntimeEntry} from '../Types'
 // } from "firebase/firestore";
 
 @Component
-export default class DownTimeEntries extends Vue {
+export default class DowntimeEntriesView extends Vue {
   
   public downTimes:any = [];
 

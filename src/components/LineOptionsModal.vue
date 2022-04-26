@@ -2,7 +2,7 @@
   <div class="disableBackground">
     <div id="lineOptionsModal" class="modal" >
       <button v-if="lineDown" @click="showDowntimeEntryModal = true; $emit('closeLineOptionsModal')">End Downtime</button>
-      <button>View Downtime Entries</button>
+      <button @click="this.$router.push({path: '/downtimeEntries'})">View Downtime Entries</button>
     <!-- <button v-if="employee == null">Working on line</button> -->
       <button @click="$emit('close-modal')">Close</button>
       <downtime-entry-modal v-if="showDowntimeEntryModal" v-bind:line="line" v-bind:employee="employee" docId="null" @close-modal="closeDowntimeEntryModal"/>
@@ -13,13 +13,13 @@
 <script lang="ts">
 import { Vue, Component, Prop } from "vue-property-decorator";
 import DowntimeEntryModal from "./DowntimeEntryModal.vue";
-import DownTimeEntries from "./DownTimeEntry.vue";
+import DowntimeEntriesView from "../views/DowntimeEntriesView.vue";
 import { User } from '@firebase/auth';
 
 @Component({
   components: {
     DowntimeEntryModal,
-    DownTimeEntries
+    DowntimeEntriesView
   }
 })
 export default class LineOptionsModal extends Vue {
