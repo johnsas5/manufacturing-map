@@ -296,7 +296,7 @@ export default class MapView extends Vue {
   showLogin = false;
 
   mounted() {
-    this.auth = getAuth(app);
+    this.auth = getAuth();
     logAuthData(this.auth);
     this.setInitialDownLinesState();
     this.dteListener();
@@ -379,7 +379,7 @@ max-width: 30%;
 position: fixed;
 top: 70px;
 right: 0;
-padding-top: 40px;
+padding-top: 0px;
 background-color: hsl(0, 0%, 95%);
 }
 

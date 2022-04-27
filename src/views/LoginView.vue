@@ -41,6 +41,10 @@ import {
   sendPasswordResetEmail,
   updateProfile,
 } from "firebase/auth";
+import { onlineUsersCollName } from "../dbCollections";
+import { onlineUser } from "../Types";
+import { db } from "../dbconfig";
+import { DocumentReference, doc, setDoc } from "@firebase/firestore";
 
 export type AccountType = {
   auth: Auth | null;
@@ -104,28 +108,26 @@ export default class LoginView extends Vue {
 
   async withEmail() {
     try {
-      const cr: UserCredential = await signInWithEmailAndPassword(
+      await signInWithEmailAndPassword(
         this.auth!,
         this.u_email + "@gmail.com",
         this.u_pass
-      );
+      ).then((uc: UserCredential) => {
+        const ou: onlineUser = {
+          uid: uc.user.uid,
+          displayName: uc.user.displayName,
+          online: true,
+          workingOnLine: null,
+        }
+        const userDoc: DocumentReference = doc(db, onlineUsersCollName, uc.user.uid);
+        setDoc(userDoc, ou);
+      });
 
       this.showMessage("Logged in");
 
       const auth = getAuth();
 
-      if (auth) {
-        const user = auth.currentUser;
-
-        if (user) {
-          await updateProfile(user, {
-            displayName: "Jane Q. User",
-            photoURL: "https://example.com/jane-q-user/profile.jpg",
-          });
-        }
-      }
-
-      this.returnClicked();
+      this.$router.push({path: "/"});
     } catch (err) {
       this.showMessage(`Unable to login ${err}`);
     }
@@ -160,12 +162,6 @@ section {
 #withProvider {
   margin-top: 1em;
   align-self: center;
-}
-
-input {
-  margin: 0.25em;
-  align-self: stretch;
-  font-size: 18px;
 }
 
 button {

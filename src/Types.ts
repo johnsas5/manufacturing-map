@@ -13,6 +13,13 @@ export type DowntimeEntry = {
   editedBy: string | null,
 };
 
+export type onlineUser = {
+  uid: string,
+  displayName: string | null;
+  online: boolean;
+  workingOnLine: string | null;
+}
+
 export const LinesDownTracker = {
   line01: "isup",
   line02: "isup",

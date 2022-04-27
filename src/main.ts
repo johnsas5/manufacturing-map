@@ -24,6 +24,7 @@ new Vue({
 // set up variables
 let currentlyOnline = 0;
 const currentlyDown = LinesDown;
+let mostRecentDte: number = Date.now();
 
 // delete all online users (should not be any if server is starting up)
 deleteCollection(db, onlineUsersCollName)
@@ -59,8 +60,11 @@ function getRandomLine(): number {
 
 // Add downtime start entries (addition of base entry lets client know line is down) randomly if users are logged on
 function addRandomDowntime() {
-  //if (currentlyOnline > 0) {
+  console.log("adding downtime");
+  console.log("currently online: " + currentlyOnline + " most recent dte: " + mostRecentDte + " Now: " + (Date.now() - 180000));
+  if (currentlyOnline > 0 && mostRecentDte < Date.now() - 60000) {
     const line = getRandomLine();
+    console.log("line down: " + line)
     if (line > -1) {
       const dte: DowntimeEntry = {
         startTime: Date.now(),
@@ -69,20 +73,23 @@ function addRandomDowntime() {
         notes: null,
         editedBy: null,
       };
+      console.log("add doc");
       addDoc(downtimeEntriesColl, dte)
       .then(() => console.log("Downtime added: " + dte))
       .catch((e) => console.log("Error adding downtime: " + e));
     }
-  //}
+  }
 }
 
 // listen for downtime entries to have an endtime to clear the line down status
 onSnapshot(downtimeEntriesColl, (qs: QuerySnapshot) => {
   qs.docChanges().forEach((chg: DocumentChange) => {
     const d = chg.doc.data();
+    mostRecentDte = d.startTime;
     for(let i = 0; i < LinesArr.length; ++i) {
-      if (d.line == LinesArr[i] && d.endTime != null) 
-        {currentlyDown[i] = false;}
+      if (d.line == LinesArr[i] && d.endTime != null) {
+        currentlyDown[i] = false;
+      }
     }
   })
 })
@@ -92,12 +99,11 @@ onSnapshot(onlineUsersColl, (qs: QuerySnapshot) => {
   qs.docChanges().forEach((chg: DocumentChange) => {
     if (chg.type == 'added') { currentlyOnline += 1 }
     if (chg.type == 'removed') { currentlyOnline -= 1 }
-    //Delete
-    console.log("Currently Online: " + currentlyOnline);
   })
 });
 
 //Uncomment to test downtime entry communication code in main.ts (also mapview needs to be updated)
-//setTimeout(addRandomDowntime, 120000);
+// 5 min
+//setInterval(addRandomDowntime, 180001);
 
 //addRandomDowntime();

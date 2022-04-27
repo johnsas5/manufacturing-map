@@ -3,25 +3,20 @@
         
         <div id="chatDiv">
             <section >
-              <h1>Test</h1>
+              <h1>Downtime Entries</h1>
                 <div id="my_scroll_div">
-                  <!-- <vue-scrolling-table id="center">
-                    <template #thead>
-                      <tr>
-                        <th>Messages</th>
-                      </tr>
-                    </template>
-                    <template #tbody>
-                      <tr v-for="message in messages" v-bind:key="message">
-                        <td>{{message}}</td>
-                      </tr>
-                    </template> -->
                     <table id="center">
-                      
+                      <th>Date Down</th>
+                      <th>Date Resolved</th>
+                      <th>Line</th>
+                      <th>Notes</th>
+                      <th>Edited By</th>
                         <tr v-for="(m,pos) in downTimes" v-bind:key=pos>
-                          <td>Date Down:{{m.startTime}}</td>
-                          <td>Date Resolved: {{m.endTime}}</td>
-                          <td>personEdit: {{m.editedBy}}</td>
+                          <td>{{getDateString(m.startTime)}}</td>
+                          <td>{{getDateString(m.endTime)}}</td>
+                          <td>{{m.line}}</td>
+                          <td>{{m.notes}}</td>
+                          <td>{{m.editedBy}}</td>
                         </tr>
                    </table>
                   <!-- </vue-scrolling-table> -->
@@ -52,40 +47,49 @@ import {DowntimeEntry} from '../Types'
 @Component
 export default class DowntimeEntriesView extends Vue {
   
-  public downTimes:any = [];
+  public downTimes:Array<DowntimeEntry> = [];
 
   mounted(): void {
     this.GetDownTime();
+    this.downTimes.sort((a, b) => {
+      if (a.endTime == null ) { return -1; }
+      if (b.endTime == null ) { return 1; }
+      return a.endTime - b.endTime;
+    });
   }
 
-
+  getDateString(n: number | null): string {
+    if (n != null) {
+    const d = new Date(n);
+    return d.toString();
+    }
+    else {
+      return "null";
+    }
+  }
 
   GetDownTime(): void {
   const coll = collection(db, downtimeEntriesCollName);
-     const msgs = getDocs(coll).then( (qs: QuerySnapshot) =>{
-       var id = 0;
-      console.log("Before loop");
-       qs.forEach((qd: QueryDocumentSnapshot) => {
+  const msgs = getDocs(coll).then( (qs: QuerySnapshot) =>{
+    var id = 0;
+    qs.forEach((qd: QueryDocumentSnapshot) => {
         //  console.log(qd.data());
-         var d = qd.data();
-         var entry : DowntimeEntry = {
-            startTime: d.startTime,
-            endTime: d.endTime,
-            line: d.line,
-            notes: d.notes,
-            editedBy: d.editedBy 
-         };
-        //  console.log(entry);
-         this.downTimes.push(entry);
-    });
-      console.log("After loop");
-    });
+    var d = qd.data();
+    var entry : DowntimeEntry = {
+      startTime: d.startTime,
+      endTime: d.endTime,
+      line: d.line,
+      notes: d.notes,        
+      editedBy: d.editedBy 
+    };
+    this.downTimes.push(entry);
+  });
+  });
     
     onSnapshot(collection(db,downtimeEntriesCollName), (qs: QuerySnapshot) => {
       try{
         qs.docChanges().forEach((chg: DocumentChange) => {
         const d = chg.doc.data();
-        console.log(chg.doc.data());
         var entryDoc : DowntimeEntry = {
               startTime: d.startTime,
               endTime: d.endTime,
@@ -162,17 +166,26 @@ export default class DowntimeEntriesView extends Vue {
 </script>
 <style scoped>
   #center{
-    margin-left: auto;
-    margin-right: auto;
+    margin-left: 20px;
+    margin-right: 20px;
     max-height: 25px;
+    border-collapse: collapse;
   }
-
-#my_scroll_div{
+  #center td, #center th {
+    border: 1px solid black;
+  }
+  #center td {
+    padding: 10px;
+  }
+  #my_scroll_div{
     overflow-y: auto;
     max-height: 500px;
     display: flex;
     flex-direction: column-reverse;
-}
+  }
+  #center tr:hover {
+    background-color: hsl(0,0%,95%);
+  }
   
 </style>
 <!-- Add "scoped" attribute to limit CSS to this component only -->

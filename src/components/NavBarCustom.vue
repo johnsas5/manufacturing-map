@@ -26,6 +26,9 @@
 <script lang="ts">
 import { Vue, Component } from "vue-property-decorator";
 import { getAuth, Auth, signOut, onAuthStateChanged, User } from '@firebase/auth';
+import { deleteDoc, DocumentReference, doc } from "@firebase/firestore";
+import { db } from "../dbconfig";
+import { onlineUsersCollName } from "@/dbCollections";
 
 @Component
 export default class NavBarCustom extends Vue{
@@ -45,6 +48,9 @@ export default class NavBarCustom extends Vue{
         this.currentUser = null;
         this.loginText = "Login";
         this.isOpen = false;
+      }
+      else {
+        this.currentUser = user;
       }
     })
   }
@@ -67,8 +73,9 @@ export default class NavBarCustom extends Vue{
     this.isOpen = false;
     if (this.currentUser != null) {
        signOut(getAuth());
+       deleteDoc(doc(db, onlineUsersCollName, this.currentUser.uid));
      }
-    this.$router.push({path: "/login"});
+     this.$router.push({path: "/login"});
   }
 
   settingsClick() {

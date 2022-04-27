@@ -2,7 +2,7 @@
   <div class="disableBackground">
     <div id="lineOptionsModal" class="modal" >
       <button v-if="lineDown && this.employee != null" @click="showDowntimeEntryModal = true; $emit('closeLineOptionsModal')">End Downtime</button>
-      <button @click="this.$router.push({path: '/downtimeEntries'})">View Downtime Entries</button>
+      <button @click="goToDowntime()">View Downtime Entries</button>
     <!-- <button v-if="employee == null">Working on line</button> -->
       <button @click="$emit('close-modal')">Close</button>
       <downtime-entry-modal v-if="showDowntimeEntryModal" v-bind:line="line" v-bind:employee="employee" docId="null" @close-modal="closeDowntimeEntryModal"/>
@@ -32,6 +32,10 @@ export default class LineOptionsModal extends Vue {
   closeDowntimeEntryModal() {
     this.showDowntimeEntryModal = false;
     this.$emit("close-modal");
+  }
+
+  goToDowntime() {
+    this.$router.push({path: "/downtimeEntries"});
   }
 }
 </script>

@@ -3,7 +3,7 @@
         <div id="chatDiv">
             <h2>Chat</h2>
             <section >
-                <div id="my_scroll_div">
+                <div class="scroll_div">
                   <!-- <vue-scrolling-table id="center">
                     <template #thead>
                       <tr>
@@ -28,9 +28,19 @@
                 <form @submit.prevent="SendMessage, GetMessages">
                     <label>{{currentUser.displayName}}:</label>
                     <input v-model="tb_message" type="text" >
-                    <button @click="SendMessage">Send</button>
+                    <button id="send_chat" @click="SendMessage">Send</button>
                 </form>
             </footer>
+            <div class="scroll_div">
+              <table>
+                <th class="left_align_header">Online Users</th>
+                <tr v-for="u in users" v-bind:key=u.uid>
+                  <td>
+                    <user-display v-bind:dName="u.displayName" />
+                  </td>
+                </tr>
+              </table>
+            </div>
         </div>
     </div>
 </template>
@@ -39,8 +49,11 @@
 import { Component, Prop, Vue } from 'vue-property-decorator';
 import { doc, onSnapshot, setDoc,DocumentChange, getDocs,CollectionReference, collection, addDoc, QuerySnapshot, QueryDocumentSnapshot, DocumentData } from "firebase/firestore";
 import { getAuth, Auth, User, signOut } from "@firebase/auth";
+import UserDisplay from "../components/UserDisplay.vue";
 import {getDatabase} from "firebase/database"
 import db from '../dbconfig'
+import { onlineUser } from '@/Types';
+import { onlineUsersColl } from '@/dbCollections';
 // import {
 //   addDoc,
 //   collection,
@@ -51,15 +64,60 @@ import db from '../dbconfig'
 //   setDoc,
 // } from "firebase/firestore";
 
-@Component
-export default class HelloWorld extends Vue {
+@Component({
+  components: {
+    UserDisplay,
+  }
+})
+export default class ChatView extends Vue {
   @Prop() readonly currentUser!: User;
-  private msg = "";
-  public tb_message = "";
-  public messages: Array<string> = [];
+  msg = "";
+  tb_message = "";
+  messages: Array<string> = [];
+  users: Array<onlineUser> = [];
 
   mounted(): void {
     this.GetMessages();
+    getDocs(onlineUsersColl)
+    .then((qs: QuerySnapshot) => {
+      qs.forEach((d: QueryDocumentSnapshot) => {
+        const u = d.data();
+        const ou: onlineUser = {
+          uid: d.id,
+          displayName: u.displayName,
+          online: u.online,
+          workingOnLine: u.workingOnLine
+        }
+        this.users.push(ou);
+      })
+    })
+    onSnapshot(onlineUsersColl, (qs: QuerySnapshot) => {
+      qs.docChanges().forEach((chg: DocumentChange) => {
+        const d = chg.doc.data();
+        const ou: onlineUser = {
+          uid: chg.doc.id,
+          displayName: d.displayName,
+          online: d.online,
+          workingOnLine: d.workingOnLine
+        }
+        if (chg.type == 'added') { 
+          this.users.forEach((x: onlineUser) => console.log(x.displayName));
+          if (!this.users.find((v) => v.uid == ou.uid)) {
+            this.users.push(ou); 
+          }
+        }
+        else if (chg.type == 'removed') { 
+          const i = this.users.findIndex((v) => v.uid == ou.uid);
+          this.removeUser(i);
+        }
+      })
+    });
+  }
+
+  removeUser(i: number) {
+    try {
+    this.users.splice(i, 1);
+    }catch(e){console.log(e);}
   }
 
   SendMessage(): void { 
@@ -82,7 +140,6 @@ export default class HelloWorld extends Vue {
         var tmp = qd.data();
         this.messages.push(tmp.user.toString() + ": " + tmp.message.toString())
         // this.messages.set(tmp.user.toString(),tmp.message.toString());
-        console.log(this.messages);
         // console.log("From: ", tmp.user, " MSG: ", tmp.message);
         // console.log("From Firestore: ", qd.id, qd.data());
     });
@@ -100,7 +157,6 @@ export default class HelloWorld extends Vue {
     try{
       qs.docChanges().forEach((chg: DocumentChange) => {
       const d = chg.doc.data();
-      console.log(chg.doc.data());
       this.messages.push(d.user.toString() + ": " + d.message.toString());
       // for(let i = 0; i < this.messages.length; ++i) {
       //   console.log("MESSAGE " + this.messages[i])
@@ -155,13 +211,22 @@ export default class HelloWorld extends Vue {
     border-style: solid;
     border-width: 1px;
   }
-
-#my_scroll_div{
+  .scroll_div {
     overflow-y: auto;
-    max-height: 500px;
+    max-height: 400px;
     display: flex;
     flex-direction: column-reverse;
-}
+  }
+  #send_chat {
+    vertical-align: middle;
+    align-content: center;
+    font-size: 16px;
+    padding: 3px;
+    width: 100px;
+  }
+  .left_align_header {
+    text-align: left;
+  }
   
 </style>
 <!-- Add "scoped" attribute to limit CSS to this component only -->
