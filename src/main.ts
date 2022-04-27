@@ -104,6 +104,6 @@ onSnapshot(onlineUsersColl, (qs: QuerySnapshot) => {
 
 //Uncomment to test downtime entry communication code in main.ts (also mapview needs to be updated)
 // 5 min
-//setInterval(addRandomDowntime, 180001);
+setInterval(addRandomDowntime, 180001);
 
 //addRandomDowntime();
